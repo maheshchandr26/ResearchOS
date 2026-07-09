@@ -1,4 +1,7 @@
-from sqlalchemy import Column, Integer, String
+from datetime import datetime
+
+from sqlalchemy import String, Text, DateTime, func
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
 
@@ -6,10 +9,30 @@ from app.database.base import Base
 class Project(Base):
     __tablename__ = "projects"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
 
-    title = Column(String(255), nullable=False)
+    title: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
 
-    description = Column(String(1000))
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
 
-    field = Column(String(255))
+    field: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
