@@ -2,6 +2,9 @@ from fastapi import FastAPI
 
 from app.config.settings import settings
 from app.core.logger import logger
+from sqlalchemy import text
+
+from app.database.session import engine
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -13,6 +16,13 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup_event():
     logger.info(f"{settings.PROJECT_NAME} is starting...")
+
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        logger.info("Database connection successful.")
+    except Exception as e:
+        logger.error(f"Database connection failed: {e}")
 
 
 @app.on_event("shutdown")
