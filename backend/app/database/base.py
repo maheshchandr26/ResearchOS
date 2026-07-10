@@ -5,5 +5,4 @@ class Base(DeclarativeBase):
     pass
 
 
-# Import all models here
-from app.models import Project  # noqa: E402,F401
+# Import all models her

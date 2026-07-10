@@ -5,13 +5,14 @@ from app.core.logger import logger
 from sqlalchemy import text
 
 from app.database.session import engine
+from app.api.projects import router as project_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     debug=settings.DEBUG,
 )
-
+app.include_router(project_router)
 
 @app.on_event("startup")
 async def startup_event():
