@@ -6,12 +6,17 @@ from sqlalchemy import text
 
 from app.database.session import engine
 from app.api.projects import router as project_router
+from app.api.papers import router as paper_router
+from app.api.chat import router as chat_router
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     debug=settings.DEBUG,
 )
+app.include_router(chat_router)
+app.include_router(paper_router)
 app.include_router(project_router)
 
 @app.on_event("startup")

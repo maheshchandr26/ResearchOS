@@ -4,7 +4,7 @@ from sqlalchemy import String, Text, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
-
+from sqlalchemy.orm import relationship
 
 class Project(Base):
     __tablename__ = "projects"
@@ -35,4 +35,9 @@ class Project(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
+    )
+    papers = relationship(
+       "Paper",
+       back_populates="project",
+       cascade="all, delete-orphan",
     )
