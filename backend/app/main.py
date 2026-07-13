@@ -8,8 +8,16 @@ from app.database.session import engine
 from app.api.projects import router as project_router
 from app.api.papers import router as paper_router
 from app.api.chat import router as chat_router
+from app.utils.logger import backend_logger
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-
+from app.core.exceptions import (
+    http_exception_handler,
+    validation_exception_handler,
+    unhandled_exception_handler,
+)
+from app.api.health import router as health_router
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
@@ -18,7 +26,21 @@ app = FastAPI(
 app.include_router(chat_router)
 app.include_router(paper_router)
 app.include_router(project_router)
+app.add_exception_handler(
+    StarletteHTTPException,
+    http_exception_handler,
+)
+app.include_router(health_router)
 
+app.add_exception_handler(
+    RequestValidationError,
+    validation_exception_handler,
+)
+
+app.add_exception_handler(
+    Exception,
+    unhandled_exception_handler,
+)
 @app.on_event("startup")
 async def startup_event():
     logger.info(f"{settings.PROJECT_NAME} is starting...")
@@ -51,3 +73,6 @@ async def health():
         "application": settings.PROJECT_NAME,
         "version": settings.VERSION,
     }
+backend_logger.info(
+    "ResearchOS Backend Started"
+)

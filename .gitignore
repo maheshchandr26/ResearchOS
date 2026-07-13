@@ -211,8 +211,15 @@ tempCodeRunnerFile.py
 
 # Marimo
 marimo/_static/
-marimo/_lsp/
+marimo/_lsp/v 
 __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# Logs
+logs/
+# IDE
+.vscode/
+# OS
+.DS_Store
+Thumbs.db

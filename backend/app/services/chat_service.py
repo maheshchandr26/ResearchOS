@@ -1,7 +1,7 @@
 from app.ai.embeddings import EmbeddingGenerator
 from app.ai.llm import LLM
 from app.ai.vector_store import VectorStore
-
+from app.utils.logger import chat_logger
 
 class ChatService:
 
@@ -37,6 +37,10 @@ class ChatService:
            question,
            context,
         )
+        chat_logger.info(
+           f"Project={project_id} | "
+           f"Question={question}"
+)
 
         sources = [
             {

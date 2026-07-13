@@ -26,3 +26,17 @@ class PaperRepository:
             .filter(Paper.project_id == project_id)
             .all()
         )
+    @staticmethod
+    def get_by_hash(
+        db,
+        project_id: int,
+        sha256_hash: str,
+    ):
+        return (
+            db.query(Paper)
+            .filter(
+                Paper.project_id ==     project_id,
+                Paper.sha256_hash ==     sha256_hash,
+            )
+            .first()
+        )

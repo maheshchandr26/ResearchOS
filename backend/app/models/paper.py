@@ -20,7 +20,10 @@ class Paper(Base):
     filename: Mapped[str] = mapped_column(String(255))
 
     file_path: Mapped[str] = mapped_column(String(500))
-
+    sha256_hash: Mapped[str] = mapped_column(
+    String(64),
+    nullable=False,
+)
     file_size: Mapped[int]
 
     uploaded_at: Mapped[datetime] = mapped_column(
