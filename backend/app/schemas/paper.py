@@ -12,4 +12,8 @@ class PaperResponse(BaseModel):
     file_size: int
     uploaded_at: datetime
 
+    summary: str | None = None
+    page_count: int | None = None
+    word_count: int | None = None
+
     model_config = ConfigDict(from_attributes=True)

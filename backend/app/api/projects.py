@@ -6,8 +6,10 @@ from app.schemas.project import (
     ProjectCreate,
     ProjectResponse,
     ProjectUpdate,
+    UpdateProjectRequest
 )
 from app.services.project_service import ProjectService
+
 
 router = APIRouter(
     prefix="/projects",
@@ -22,7 +24,17 @@ def create_project(
 ):
     return ProjectService.create_project(db, project)
 
-
+@router.put("/{project_id}")
+def update_project(
+    project_id: int,
+    request: UpdateProjectRequest,
+    db: Session = Depends(get_db),
+):
+    return ProjectService.update_project(
+        db,
+        project_id,
+        request,
+    )
 @router.get("/", response_model=list[ProjectResponse])
 def list_projects(
     db: Session = Depends(get_db),

@@ -18,10 +18,20 @@ from app.core.exceptions import (
     unhandled_exception_handler,
 )
 from app.api.health import router as health_router
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     debug=settings.DEBUG,
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 app.include_router(chat_router)
 app.include_router(paper_router)

@@ -48,5 +48,5 @@ class VectorStore:
          return self.collection.query(
              query_embeddings=     [query_embedding.tolist()],
              n_results=k,
-             where={"project_id":      project_id},
+             where ={"project_id": project_id}
          )

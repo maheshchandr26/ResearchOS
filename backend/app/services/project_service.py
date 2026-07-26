@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 
 from app.repositories.project_repository import ProjectRepository
 from app.schemas.project import ProjectCreate
-
-
+from fastapi import HTTPException
+from app.models.project import Project
 class ProjectService:
 
     @staticmethod
@@ -17,7 +17,30 @@ class ProjectService:
     @staticmethod
     def get_project(db: Session, project_id: int):
         return ProjectRepository.get_by_id(db, project_id)
+    @staticmethod
+    def update_project(
+        db: Session,
+        project_id: int,
+        data,
+    ):
+        project = (
+            db.query(Project)
+        .filter(Project.id == project_id)
+            .first()
+        )
 
+        if not project:
+            raise HTTPException(
+                status_code=404,
+                detail="Project not found",
+            )
+
+        project.title = data.title
+
+        db.commit()
+        db.refresh(project)
+
+        return project
     @staticmethod
     def delete_project(db: Session, project):
         ProjectRepository.delete(db, project)

@@ -1,6 +1,6 @@
 from pathlib import Path
 import shutil
-
+import os
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
@@ -15,8 +15,10 @@ from fastapi import HTTPException
 from app.utils.hash_utils import calculate_sha256
 from app.utils.logger import upload_logger
 UPLOAD_DIR = Path("uploads")
+from app.ai.llm import LLM
+import os
 
-
+print(os.path.abspath("vector_db"))
 class PaperService:
 
     @staticmethod
@@ -57,10 +59,33 @@ class PaperService:
 )
         chunker = Chunker()
 
-        chunks = chunker.chunk(pdf["text"])
+        chunks = chunker.chunk(
+        pdf["page_texts"]
+        )
+        print("\n" + "=" * 80)
+        print("TOTAL CHUNKS:", len(chunks))
+
+        for i, chunk in enumerate(chunks):
+            print("\n" + "-" * 80)
+            print(f"CHUNK {i}")
+            print("-" * 80)
+            print(chunk)
+
+        print("=" * 80)
+
         embedding_generator = EmbeddingGenerator()
 
-        embeddings = embedding_generator.generate(chunks)
+        embeddings = embedding_generator.generate_documents(
+            [
+                c["text"]
+                for c in chunks
+            ]
+    )
+
+# Generate AI summary
+        llm = LLM()
+
+        summary = llm.summarize(pdf["text"])
         paper = Paper(
           project_id=project_id,
           title=file.filename,
@@ -69,6 +94,7 @@ class PaperService:
           sha256_hash=sha256_hash,
           file_size=destination.stat().st_size,
           raw_text=pdf["text"],
+          summary=summary,
           page_count=pdf["pages"],
           word_count=pdf["word_count"],
 )
@@ -89,16 +115,72 @@ class PaperService:
             ids=[
                 f"{project_id}_{paper.id}_{i}"
                 for i in range(len(chunks))
-            ],
-            documents=chunks,
+            ], 
+            documents=[
+                 c["text"]
+                 for c in chunks
+             ],
             embeddings=embeddings,
             metadata=[
                 {
                     "project_id": project_id,
-                    "paper_name": file.        filename,
+                    "paper_id": paper.id,
+                    "paper_name": file.filename,
                     "chunk": i,
+                    "page": chunks[i]["page"],
                 }
                 for i in range(len(chunks))
             ],
         )
+        print("\n" + "=" * 80)
+        print("UPLOAD DEBUG")
+        print("=" * 80)
+
+        print("VECTOR DB PATH:")
+        print(os.path.abspath("vector_db"))
+
+        print("\nCOLLECTION COUNT:")
+        print(vector_store.collection.count())
+
+        print("\nCOLLECTION PEEK:")
+        print(vector_store.collection.peek())
+
+        print("=" * 80)
         return paper
+    @staticmethod
+    def get_project_papers(
+    db: Session,
+    project_id: int,
+):
+      return PaperRepository.get_project_papers(
+        db,
+        project_id,
+    )
+    @staticmethod
+    def delete_paper(
+      db: Session,
+      paper_id: int,
+    ):
+      paper = (
+         db.query(Paper)
+         .filter(Paper.id == paper_id)
+         .first()
+      )
+
+      if not paper:
+         raise HTTPException(
+                status_code=404,
+                detail="Paper not found",
+            )
+
+      file = Path(paper.file_path)
+  
+      if file.exists():
+           os.remove(file)
+
+      db.delete(paper)
+      db.commit()
+  
+      return {
+           "message": "Paper deleted        successfully."
+       }

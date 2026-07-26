@@ -7,8 +7,12 @@ class ChatRequest(BaseModel):
 
 
 class Source(BaseModel):
+    paper_id: int
     paper_name: str
-    chunk: int
+    page: int
+    evidence: str
+    highlight_text: str
+    confidence: str
 
 
 class ChatResponse(BaseModel):

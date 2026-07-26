@@ -41,3 +41,8 @@ class Project(Base):
        back_populates="project",
        cascade="all, delete-orphan",
     )
+    chat_sessions = relationship(
+       "ChatSession",
+       back_populates="project",
+       cascade="all, delete-orphan",
+    )

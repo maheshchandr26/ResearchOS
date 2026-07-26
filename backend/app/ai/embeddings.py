@@ -8,12 +8,23 @@ class EmbeddingGenerator:
             "BAAI/bge-small-en-v1.5"
         )
 
-    def generate(self, texts: list[str]):
-
-        embeddings = self.model.encode(
+    def generate_documents(self, texts: list[str]):
+        return self.model.encode(
             texts,
             convert_to_numpy=True,
             normalize_embeddings=True,
         )
 
-        return embeddings
+    def generate_query(self, query: str):
+        query = (
+            "Represent this sentence for searching relevant passages: "
+            + query
+        )
+
+        embedding = self.model.encode(
+            [query],
+            convert_to_numpy=True,
+            normalize_embeddings=True,
+        )
+
+        return embedding[0]

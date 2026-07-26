@@ -14,8 +14,8 @@ class TextChunker:
     @staticmethod
     def chunk_text(
         text: str,
-        chunk_size: int = 800,
-        overlap: int = 150,
+        chunk_size: int = 400,
+        overlap: int = 200,
     ):
 
         chunks = []

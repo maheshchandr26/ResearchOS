@@ -18,7 +18,8 @@ class ProjectUpdate(BaseModel):
     description: str | None = None
     field: str | None = None
 
-
+class UpdateProjectRequest(BaseModel):
+    title: str
 class ProjectResponse(ProjectBase):
     id: int
     created_at: datetime

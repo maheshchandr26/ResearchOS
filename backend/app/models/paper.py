@@ -43,7 +43,10 @@ class Paper(Base):
         Text,
         nullable=True,
 )
-
+    
     page_count: Mapped[int | None]
-
+    summary: Mapped[str | None] = mapped_column(
+    Text,
+    nullable=True,
+)
     word_count: Mapped[int | None]

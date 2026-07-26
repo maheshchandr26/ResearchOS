@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1e293b;
+  --secondary-foreground: #ffffff;
+
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  --accent: #334155;
+  --accent-foreground: #ffffff;
+
+  --border: #334155;
+  --input: #1e293b;
+  --ring: #3b82f6;
+
+  --radius: 0.75rem;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Geist Variable", sans-serif;
+}
+.research-highlight {
+    background: #ffeb3b;
+    color: black !important;
+    border-radius: 3px;
+    padding: 1px;
+}

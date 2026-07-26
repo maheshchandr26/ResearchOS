@@ -20,6 +20,25 @@ class Chunker:
             ],
         )
 
-    def chunk(self, text: str):
+    def chunk(self, page_texts):
 
-        return self.splitter.split_text(text)
+        chunks = []
+
+        for page_data in page_texts:
+
+            page = page_data["page"]
+
+            texts = self.splitter.split_text(
+                page_data["text"]
+            )
+
+            for text in texts:
+
+                chunks.append(
+                    {
+                        "text": text,
+                        "page": page,
+                    }
+                )
+
+        return chunks
