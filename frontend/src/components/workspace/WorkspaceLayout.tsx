@@ -79,7 +79,7 @@ export default function WorkspaceLayout({
     }
 
     setSelectedPage(page);
-    setHighlightEvidence(highlightText);
+    setHighlightEvidence(evidence);
   }}
 />
       </div>

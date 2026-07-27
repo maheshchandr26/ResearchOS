@@ -182,7 +182,7 @@ Retrieved Documents
             print("=" * 80)
 
             answer = raw_response
-            cited_chunks = []
+            citations = []
         print("=" * 80)
         print("ANSWER RETURNED BY LLM")
         print(repr(answer))

@@ -23,109 +23,162 @@ export default function PdfViewer({
   const [currentPage, setCurrentPage] = useState(page);
 
   const viewerRef = useRef<HTMLDivElement>(null);
+  const lastScrolledRef = useRef<string>("");
+
+  // Always-current values for the observer's callback to read, so the
+  // observer itself never needs to be torn down/recreated when these change.
+  const highlightEvidenceRef = useRef(highlightEvidence);
+  const currentPageRef = useRef(currentPage);
+
   function normalize(text: string) {
-  return text
-    .replace(/\s+/g, " ")
-    .replace(/[^\w\s.,:%₹$()-]/g, "")
-    .trim()
-    .toLowerCase();
-   }
+    return text
+      .replace(/\s+/g, " ")
+      .replace(/[^\w\s.,:%₹$()-]/g, "")
+      .trim()
+      .toLowerCase();
+  }
+
   useEffect(() => {
     setCurrentPage(page);
   }, [page]);
 
   useEffect(() => {
-  const timer = setTimeout(() => {
+    lastScrolledRef.current = "";
+  }, [highlightEvidence]);
+
+  useEffect(() => {
+    highlightEvidenceRef.current = highlightEvidence;
+    currentPageRef.current = currentPage;
+  }, [highlightEvidence, currentPage]);
+
+  function applyHighlight() {
     if (!viewerRef.current) return;
 
+    const evidence = highlightEvidenceRef.current;
+    const pageForKey = currentPageRef.current;
+
     const spans = Array.from(
-      viewerRef.current.querySelectorAll(
-        ".react-pdf__Page__textContent span"
-      )
+      viewerRef.current.querySelectorAll(".react-pdf__Page__textContent span")
     ) as HTMLSpanElement[];
 
-    spans.forEach((span) =>
-      span.classList.remove("research-highlight")
-    );
+    console.log("SPANS FOUND:", spans.length);
 
-    if (!highlightEvidence.trim()) return;
+    spans.forEach((span) => span.classList.remove("research-highlight"));
 
-    const target = normalize(highlightEvidence);
+    if (!evidence.trim()) return;
 
-    const pageText = spans
-      .map((span) => normalize(span.textContent || ""))
-      .join(" ");
+    const target = normalize(evidence);
+    const pageText = spans.map((span) => normalize(span.textContent || "")).join(" ");
 
     let start = pageText.indexOf(target);
+    let matchLength = target.length;
 
-// Fallback 1: collapse spaces
-if (start === -1) {
-  start = pageText.replace(/\s+/g, "")
-    .indexOf(target.replace(/\s+/g, ""));
-}
-
-// Fallback 2: search longest phrase
-if (start === -1) {
-
-  const words = target
-    .split(" ")
-    .filter(w => w.length > 3);
-
-  let best = "";
-
-  for (const word of words) {
-    if (word.length > best.length) {
-      best = word;
+    if (start === -1) {
+      const pattern = target
+        .split(" ")
+        .filter(Boolean)
+        .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+        .join("\\s+");
+      const match = pageText.match(new RegExp(pattern));
+      if (match && match.index !== undefined) {
+        start = match.index;
+        matchLength = match[0].length;
+      }
     }
-  }
 
-  if (best) {
-    start = pageText.indexOf(best);
-  }
-}
+    if (start === -1) {
+      const words = target.split(" ").filter((w) => w.length > 3);
+      let best = "";
+      for (const word of words) {
+        if (word.length > best.length) best = word;
+      }
+      if (best) {
+        start = pageText.indexOf(best);
+        matchLength = best.length;
+      }
+    }
 
-if (start === -1) {
-  console.log("Evidence not found:", target);
-  console.log("Page text:", pageText);
-  return;
-}
+    console.log("SEARCHING FOR:", target);
+    console.log("IN PAGE TEXT:", pageText);
+
+    if (start === -1) {
+      console.log("Evidence not found:", target);
+      return;
+    }
 
     let cursor = 0;
+    let firstMatch: HTMLSpanElement | null = null;
 
     spans.forEach((span) => {
       const text = normalize(span.textContent || "");
+      const spanStart = cursor;
+      const spanEnd = cursor + text.length;
+      cursor += text.length + 1;
 
       if (!text) return;
 
-      const spanStart = cursor;
-      const spanEnd = cursor + text.length;
-
-      const targetStart = start;
-      const targetEnd = start + target.length;
-
-      const overlaps =
-        spanEnd >= targetStart &&
-        spanStart <= targetEnd;
-
+      const overlaps = spanEnd >= start && spanStart <= start + matchLength;
       if (overlaps) {
-    span.classList.add("research-highlight");
-
-    if (
-        !viewerRef.current?.querySelector(".research-highlight")
-    ) {
-        span.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-        });
-    }
-}
-
-      cursor += text.length + 1;
+        span.classList.add("research-highlight");
+        if (!firstMatch) firstMatch = span;
+      }
     });
-  }, 250);
 
-  return () => clearTimeout(timer);
-}, [highlightEvidence, currentPage]);
+    console.log(
+      "HIGHLIGHTED SPANS ADDED (immediately):",
+      viewerRef.current.querySelectorAll(".research-highlight").length
+    );
+
+    if (firstMatch) {
+      const key = `${pageForKey}::${evidence}`;
+      if (lastScrolledRef.current !== key) {
+        lastScrolledRef.current = key;
+        (firstMatch as HTMLSpanElement).scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }
+
+  // Set up ONCE, for the component's whole lifetime — not torn down and
+  // recreated on every text-layer re-render. The MutationObserver alone is
+  // enough to catch the text layer appearing/changing at any point; we no
+  // longer depend on onRenderTextLayerSuccess/textLayerVersion for this,
+  // which was what caused the effect (and observer) to be recreated in a
+  // tight loop any time react-pdf re-rendered the text layer on its own.
+  useEffect(() => {
+    if (!viewerRef.current) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    function scheduleHighlight() {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(applyHighlight, 150);
+    }
+
+    scheduleHighlight();
+
+    const observer = new MutationObserver(() => {
+      scheduleHighlight();
+    });
+    observer.observe(viewerRef.current, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      observer.disconnect();
+    };
+  }, []); // <-- empty deps: created once, lives for the component's lifetime
+
+  // Whenever evidence or page actually change, trigger a fresh pass directly
+  // too (in addition to whatever the observer catches).
+  useEffect(() => {
+    const t = setTimeout(applyHighlight, 150);
+    return () => clearTimeout(t);
+  }, [highlightEvidence, currentPage]);
 
   if (!paper) {
     return (

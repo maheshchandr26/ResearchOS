@@ -44,8 +44,8 @@ body {
   font-family: "Geist Variable", sans-serif;
 }
 .research-highlight {
-    background: #ffeb3b;
-    color: black !important;
-    border-radius: 3px;
-    padding: 1px;
+  background-color: #ffeb3b;
+  color: black !important;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
 }
