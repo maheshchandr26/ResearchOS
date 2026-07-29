@@ -3,7 +3,7 @@ import { useState } from "react";
 import PdfSidebar from "./PdfSidebar";
 import PdfViewer from "./PdfViewer";
 
-import ChatLayout from "@/components/chat/ChatLayout";
+import ResearchAssistant from "@/components/workspace/assistant/ResearchAssistant";
 
 import type { Paper } from "@/types/paper";
 
@@ -61,19 +61,12 @@ export default function WorkspaceLayout({
       {/* AI Chat */}
 
         <div className="col-span-3 h-full min-h-0 border rounded-xl overflow-hidden">      
-            <ChatLayout
+           <ResearchAssistant
   projectId={projectId}
+  selectedPaper={selectedPaper}
   onSourceClick={(paperId, page, evidence) => {
+    const paper = papers.find((p) => p.id === paperId);
 
-    console.log("========== SOURCE CLICK ==========");
-    console.log("Clicked paperId:", paperId);
-    console.log("Clicked page:", page);
-    console.log("Available papers:", papers);
-    console.log("Evidence:", evidence);
-    const paper = papers.find(
-      (p) => p.id === paperId
-    );
-    console.log("paper found:", paper);
     if (paper) {
       onSelectPaper(paper);
     }

@@ -53,6 +53,7 @@ The JSON MUST have exactly this format:
     }
   ]
 }
+
 Rules:
 - evidence MUST be copied exactly from the retrieved chunk.
 - Never rewrite the evidence.
@@ -79,16 +80,6 @@ Question:
 Return ONLY valid JSON.
 """
 
-        print("=" * 80)
-        print("SYSTEM PROMPT")
-        print("=" * 80)
-        print(system_prompt)
-
-        print("=" * 80)
-        print("USER PROMPT")
-        print("=" * 80)
-        print(user_prompt)
-
         response = ollama.chat(
             model=self.model,
             messages=[
@@ -106,27 +97,57 @@ Return ONLY valid JSON.
             },
         )
 
-        print("=" * 80)
-        print("RAW OLLAMA RESPONSE")
-        print("=" * 80)
-        print(response)
-
         content = response.get("message", {}).get("content", "").strip()
-
-        print("=" * 80)
-        print("RAW JSON FROM LLM")
-        print("=" * 80)
-        print(content)
-        print("=" * 80)
 
         return content
 
     def summarize(self, text: str):
 
-        prompt = f"""
-Summarize the following document in 150-200 words.
+        system_prompt = """
+You are ResearchOS, an AI research assistant.
 
-Document:
+Your task is to summarize research papers for students and researchers.
+
+Return ONLY GitHub Markdown.
+
+Follow EXACTLY this structure.
+
+# Overview
+
+Write a concise overview of the paper in 3-5 sentences.
+
+## Key Contributions
+
+List 3-6 bullet points describing the paper's main contributions.
+
+## Methodology
+
+Explain how the authors approached the problem in simple language.
+
+## Key Findings
+
+List the important results as bullet points.
+
+## Conclusion
+
+Summarize the paper in 2-3 sentences.
+
+Rules:
+
+- Use Markdown headings (# and ##).
+- Use bullet lists where appropriate.
+- Do NOT use tables.
+- Do NOT use code blocks.
+- Do NOT mention "this summary".
+- Keep the summary between 250 and 400 words.
+- Write in clear, professional English.
+- If a section cannot be inferred, simply omit it instead of inventing information.
+"""
+
+        user_prompt = f"""
+Summarize the following research paper.
+
+Research Paper:
 
 {text[:12000]}
 """
@@ -135,13 +156,17 @@ Document:
             model=self.model,
             messages=[
                 {
+                    "role": "system",
+                    "content": system_prompt,
+                },
+                {
                     "role": "user",
-                    "content": prompt,
-                }
+                    "content": user_prompt,
+                },
             ],
             options={
-                "temperature": 0,
+                "temperature": 0.2,
             },
         )
 
-        return response.get("message", {}).get("content", "")
+        return response.get("message", {}).get("content", "").strip()

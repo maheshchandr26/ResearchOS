@@ -193,8 +193,8 @@ export default function PdfViewer({
   const pdfUrl = `http://127.0.0.1:8000/papers/file/${paper.id}`;
 
   return (
-    <div className="h-full min-h-0 flex flex-col rounded-xl border bg-slate-100">
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-white">
+    <div className="h-full min-h-0 flex flex-col rounded-xl border bg-slate-900">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-slate">
         <button
           className="px-3 py-1 rounded border disabled:opacity-50"
           disabled={currentPage === 1}
