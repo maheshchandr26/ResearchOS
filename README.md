@@ -57,31 +57,21 @@ It enables users to upload research papers, automatically generate structured su
 
 ### Dashboard
 
-> *(Add dashboard screenshot here)*
+![Dashboard](assets/dashboard.png)
 
-```
-assets/dashboard.png
-```
 
 ---
 
 ### Research Workspace
 
-> *(Add workspace screenshot here)*
+![Workspace](assets/workspace.png)
 
-```
-assets/workspace.png
-```
 
 ---
 
 ### AI Summary
+![Summary](assets/summary.png)
 
-> *(Add summary screenshot here)*
-
-```
-assets/summary.png
-```
 
 ---
 
@@ -89,11 +79,8 @@ assets/summary.png
 
 > *(Add chat screenshot here)*
 
-```
-assets/chat.png
-```
+![Chat](assets/chat.png)
 
----
 
 ## 🏗 Architecture
 
