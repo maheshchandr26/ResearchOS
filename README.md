@@ -77,8 +77,6 @@ It enables users to upload research papers, automatically generate structured su
 
 ### Citation-Based Chat
 
-> *(Add chat screenshot here)*
-
 ![Chat](assets/chat.png)
 
 
