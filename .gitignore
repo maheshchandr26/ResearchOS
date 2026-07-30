@@ -225,3 +225,15 @@ logs/
 Thumbs.db
 backend/.env
 frontend/.env
+# ChromaDB
+backend/vector_db/
+
+# Windows
+desktop.ini
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+.venv/
