@@ -224,7 +224,7 @@ ResearchOS simplifies this workflow by combining semantic search and Retrieval-A
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/ResearchOS.git
+git clone https://github.com/maheshchandr26/ResearchOS.git
 ```
 
 ```bash
